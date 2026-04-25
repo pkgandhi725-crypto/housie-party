@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Join a Game – Housie Party</title>
+  <meta name="description" content="Join a Housie / Tambola game with your friends and family." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #6C2BD9;
+      --purple-dark: #4A1A9E;
+      --purple-light: #9B5EF5;
+      --gold: #F5C518;
+      --gold-dark: #D4A800;
+      --white: #FFFFFF;
+      --text: #1A0A3B;
+      --text-muted: #7B6FA0;
+      --card-bg: rgba(255,255,255,0.07);
+      --card-border: rgba(255,255,255,0.12);
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'Nunito', sans-serif;
+      background: var(--purple-dark);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, #7C3AED44 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, #F5C51811 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 50%, #4A1A9E 0%, #1A0A3B 100%);
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem;
+      gap: 1.2rem;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      animation: fadeDown 0.5s ease both;
+    }
+
+    .back-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--white);
+      font-size: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.8rem;
+      letter-spacing: 1px;
+      color: var(--gold);
+    }
+
+    /* Card */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 1.3rem;
+      backdrop-filter: blur(10px);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .card:nth-child(2) { animation-delay: 0.1s; }
+    .card:nth-child(3) { animation-delay: 0.2s; }
+    .card:nth-child(4) { animation-delay: 0.3s; }
+    .card:nth-child(5) { animation-delay: 0.4s; }
+
+    .card-label {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin-bottom: 0.8rem;
+    }
+
+    /* Input */
+    .input {
+      width: 100%;
+      padding: 0.9rem 1rem;
+      border-radius: 12px;
+      border: 2px solid var(--card-border);
+      background: rgba(255,255,255,0.06);
+      color: var(--white);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input::placeholder { color: #7B6FA0; font-weight: 600; }
+    .input:focus { border-color: var(--purple-light); }
+
+    /* Room code input special */
+    .code-input {
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+    }
+
+    /* Ticket count */
+    .ticket-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .ticket-option {
+      padding: 1rem 0.5rem;
+      border-radius: 14px;
+      border: 2px solid var(--card-border);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .ticket-option.active {
+      border-color: var(--gold);
+      background: rgba(245, 197, 24, 0.12);
+    }
+
+    .ticket-num-big {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .ticket-option.active .ticket-num-big { color: var(--gold); }
+
+    .ticket-sub {
+      font-size: 0.7rem;
+      color: #C4B0E8;
+      font-weight: 700;
+      margin-top: 0.2rem;
+    }
+
+    /* Marking mode */
+    .marking-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+    }
+
+    .marking-option {
+      padding: 0.9rem;
+      border-radius: 12px;
+      border: 2px solid var(--card-border);
+      background: rgba(255,255,255,0.04);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+
+    .marking-option.active {
+      border-color: var(--purple-light);
+      background: rgba(155, 94, 245, 0.15);
+    }
+
+    .marking-icon { font-size: 1.4rem; display: block; margin-bottom: 0.3rem; }
+    .marking-name { font-weight: 800; font-size: 0.9rem; }
+    .marking-desc { font-size: 0.7rem; color: #C4B0E8; margin-top: 0.2rem; }
+
+    /* Error msg */
+    .error-msg {
+      font-size: 0.8rem;
+      color: #FF6B6B;
+      font-weight: 700;
+      margin-top: 0.4rem;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    /* Join button */
+    .btn-join {
+      width: 100%;
+      padding: 1.1rem;
+      border-radius: 16px;
+      border: none;
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 6px 24px rgba(245, 197, 24, 0.35);
+      animation: fadeUp 0.5s 0.5s ease both;
+    }
+
+    .btn-join:hover { transform: translateY(-2px); }
+    .btn-join:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    /* Waiting screen */
+    .waiting-screen {
+      display: none;
+      flex-direction: column;
+      gap: 1.2rem;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      text-align: center;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .waiting-screen.show { display: flex; }
+
+    .waiting-emoji {
+      font-size: 4rem;
+      animation: bounce 1.5s ease infinite;
+    }
+
+    .waiting-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+
+    .waiting-sub {
+      color: #C4B0E8;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .waiting-code {
+      background: rgba(245,197,24,0.1);
+      border: 2px solid rgba(245,197,24,0.3);
+      border-radius: 14px;
+      padding: 0.8rem 2rem;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      letter-spacing: 6px;
+      color: var(--gold);
+    }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: pulse 1.2s ease infinite;
+      margin-right: 0.4rem;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    /* Loading spinner */
+    .loading {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(26,10,59,0.3);
+      border-top-color: var(--text);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <a href="index.html" class="back-btn">←</a>
+    <div class="header-title">🎮 Join a Game</div>
+  </div>
+
+  <!-- JOIN FORM -->
+  <div id="joinForm">
+
+    <!-- Your Name -->
+    <div class="card">
+      <div class="card-label">Your Name</div>
+      <input class="input" id="playerName" type="text" placeholder="Enter your name..." maxlength="20" autocomplete="off" />
+    </div>
+
+    <!-- Room Code -->
+    <div class="card">
+      <div class="card-label">Room Code</div>
+      <input class="input code-input" id="roomCode" type="text" placeholder="XXXXXX" maxlength="6" autocomplete="off" />
+      <div class="error-msg" id="codeError">Room not found. Check the code and try again.</div>
+    </div>
+
+    <!-- Tickets -->
+    <div class="card">
+      <div class="card-label">How Many Tickets?</div>
+      <div class="ticket-options">
+        <div class="ticket-option active" id="ticket-1" onclick="selectTickets(1)">
+          <div class="ticket-num-big">1</div>
+          <div class="ticket-sub">Ticket</div>
+        </div>
+        <div class="ticket-option" id="ticket-2" onclick="selectTickets(2)">
+          <div class="ticket-num-big">2</div>
+          <div class="ticket-sub">Tickets</div>
+        </div>
+        <div class="ticket-option" id="ticket-3" onclick="selectTickets(3)">
+          <div class="ticket-num-big">3</div>
+          <div class="ticket-sub">Tickets</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Marking Mode -->
+    <div class="card">
+      <div class="card-label">Ticket Marking</div>
+      <div class="marking-toggle">
+        <div class="marking-option active" id="markManual" onclick="selectMarking('manual')">
+          <span class="marking-icon">👆</span>
+          <div class="marking-name">Manual</div>
+          <div class="marking-desc">Tap to mark yourself</div>
+        </div>
+        <div class="marking-option" id="markAuto" onclick="selectMarking('auto')">
+          <span class="marking-icon">🤖</span>
+          <div class="marking-name">Auto</div>
+          <div class="marking-desc">Auto-marks for you</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Join Button -->
+    <button class="btn-join" id="btnJoin" onclick="joinRoom()">
+      🎱 Join Room
+    </button>
+
+  </div>
+
+  <!-- WAITING SCREEN -->
+  <div class="waiting-screen" id="waitingScreen">
+    <div class="waiting-emoji">⏳</div>
+    <div class="waiting-title">You're In!</div>
+    <div class="waiting-sub">Waiting for host to start the game...</div>
+    <div class="waiting-code" id="waitingCode"></div>
+    <div style="color:#C4B0E8; font-size:0.85rem; font-weight:700;">
+      <span class="pulse-dot"></span> Host is setting up the game
+    </div>
+  </div>
+
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD8FK8uA47FYgquE9XpNTAE5SM7iUAmrO8",
+    authDomain: "housie-party.firebaseapp.com",
+    databaseURL: "https://housie-party-default-rtdb.firebaseio.com",
+    projectId: "housie-party",
+    storageBucket: "housie-party.firebasestorage.app",
+    messagingSenderId: "936166289642",
+    appId: "1:936166289642:web:8b8bf76161a68058966793"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  // State
+  let ticketCount = 1;
+  let markingMode = 'manual';
+  let playerId = null;
+  let currentRoomCode = null;
+
+  // Pre-fill code from URL
+  const urlCode = new URLSearchParams(location.search).get('code');
+  if (urlCode) document.getElementById('roomCode').value = urlCode.toUpperCase();
+
+  // Ticket select
+  window.selectTickets = function(n) {
+    ticketCount = n;
+    [1,2,3].forEach(i => {
+      document.getElementById('ticket-' + i).classList.toggle('active', i === n);
+    });
+  };
+
+  // Marking mode
+  window.selectMarking = function(mode) {
+    markingMode = mode;
+    document.getElementById('markManual').classList.toggle('active', mode === 'manual');
+    document.getElementById('markAuto').classList.toggle('active', mode === 'auto');
+  };
+
+  // Generate ticket (standard Tambola format)
+  function generateTicket() {
+    const ticket = [];
+    // 3 rows, each row has 9 columns (1-9, 10-19, ..., 80-90)
+    // Each row has 5 numbers, 4 blanks
+    const columns = [
+      [1,9], [10,19], [20,29], [30,39], [40,49],
+      [50,59], [60,69], [70,79], [80,90]
+    ];
+
+    for (let row = 0; row < 3; row++) {
+      const rowNums = [];
+      const positions = [...Array(9).keys()].sort(() => Math.random() - 0.5).slice(0, 5).sort((a,b) => a-b);
+
+      for (let col = 0; col < 9; col++) {
+        if (positions.includes(col)) {
+          const [min, max] = columns[col];
+          rowNums.push(Math.floor(Math.random() * (max - min + 1)) + min);
+        } else {
+          rowNums.push(0); // blank
+        }
+      }
+      ticket.push(rowNums);
+    }
+    return ticket;
+  }
+
+  // Join room
+  window.joinRoom = async function() {
+    const name = document.getElementById('playerName').value.trim();
+    const code = document.getElementById('roomCode').value.trim().toUpperCase();
+
+    if (!name) {
+      document.getElementById('playerName').focus();
+      document.getElementById('playerName').style.borderColor = '#FF6B6B';
+      return;
+    }
+    if (!code || code.length < 6) {
+      document.getElementById('roomCode').focus();
+      document.getElementById('roomCode').style.borderColor = '#FF6B6B';
+      return;
+    }
+
+    document.getElementById('playerName').style.borderColor = '';
+    document.getElementById('roomCode').style.borderColor = '';
+    document.getElementById('codeError').classList.remove('show');
+
+    const btn = document.getElementById('btnJoin');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span> Joining...';
+
+    // Check room exists
+    const roomSnap = await get(ref(db, `rooms/${code}`));
+    if (!roomSnap.exists()) {
+      document.getElementById('codeError').classList.add('show');
+      document.getElementById('roomCode').style.borderColor = '#FF6B6B';
+      btn.disabled = false;
+      btn.innerHTML = '🎱 Join Room';
+      return;
+    }
+
+    const room = roomSnap.val();
+    if (room.status === 'playing') {
+      document.getElementById('codeError').textContent = 'Game already started!';
+      document.getElementById('codeError').classList.add('show');
+      btn.disabled = false;
+      btn.innerHTML = '🎱 Join Room';
+      return;
+    }
+
+    // Generate unique player ID
+    playerId = 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7);
+    currentRoomCode = code;
+
+    // Generate tickets
+    const tickets = [];
+    for (let i = 0; i < ticketCount; i++) tickets.push(generateTicket());
+
+    // Save player
+    await set(ref(db, `rooms/${code}/players/${playerId}`), {
+      name,
+      ticketCount,
+      markingMode,
+      tickets,
+      markedNumbers: [],
+      joinedAt: Date.now()
+    });
+
+    // Save to session
+    sessionStorage.setItem('playerId', playerId);
+    sessionStorage.setItem('playerName', name);
+    sessionStorage.setItem('roomCode', code);
+    sessionStorage.setItem('markingMode', markingMode);
+
+    // Show waiting screen
+    document.getElementById('joinForm').style.display = 'none';
+    document.getElementById('waitingCode').textContent = code;
+    document.getElementById('waitingScreen').classList.add('show');
+
+    // Listen for game start
+    onValue(ref(db, `rooms/${code}/status`), (snap) => {
+      if (snap.val() === 'playing') {
+        location.href = `game.html?code=${code}&role=player&pid=${playerId}`;
+      }
+    });
+  };
+
+</script>
+
+</body>
+</html>
