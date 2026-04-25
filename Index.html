@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Housie Party 🎉</title>
+  <meta name="description" content="Free online Tambola / Housie game for friends and family. Create a room and play together!" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --purple: #6C2BD9;
+      --purple-dark: #4A1A9E;
+      --purple-light: #9B5EF5;
+      --gold: #F5C518;
+      --gold-dark: #D4A800;
+      --white: #FFFFFF;
+      --off-white: #F8F4FF;
+      --text: #1A0A3B;
+      --text-muted: #7B6FA0;
+    }
+
+    html, body {
+      min-height: 100vh;
+      font-family: 'Nunito', sans-serif;
+      background: var(--purple-dark);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, #7C3AED55 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, #F5C51822 0%, transparent 60%),
+        radial-gradient(ellipse at 50% 50%, #4A1A9E 0%, #1A0A3B 100%);
+      z-index: 0;
+    }
+
+    /* Floating balls background */
+    .balls {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .ball {
+      position: absolute;
+      border-radius: 50%;
+      font-family: 'Bebas Neue', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      color: white;
+      font-weight: bold;
+      opacity: 0.12;
+      animation: floatBall linear infinite;
+    }
+
+    @keyframes floatBall {
+      0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.12; }
+      90% { opacity: 0.12; }
+      100% { transform: translateY(-20vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* Main container */
+    .container {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      gap: 2rem;
+    }
+
+    /* Logo section */
+    .logo-section {
+      text-align: center;
+      animation: fadeDown 0.7s ease both;
+    }
+
+    .logo-emoji {
+      font-size: 4rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      animation: bounce 2s ease infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .logo-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3.5rem, 15vw, 5.5rem);
+      line-height: 0.9;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, var(--gold) 0%, #FFF3A0 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px #F5C51855);
+    }
+
+    .logo-sub {
+      font-size: 1rem;
+      color: #C4B0E8;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+
+    /* Ticket preview decoration */
+    .ticket-preview {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(245, 197, 24, 0.3);
+      border-radius: 16px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 300px;
+      animation: fadeUp 0.7s 0.2s ease both;
+    }
+
+    .ticket-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      transition: all 0.3s;
+    }
+
+    .ticket-num.filled {
+      background: var(--gold);
+      color: var(--text);
+    }
+
+    .ticket-num.marked {
+      background: var(--purple-light);
+      color: white;
+      box-shadow: 0 0 12px var(--purple-light);
+    }
+
+    .ticket-num.empty {
+      background: rgba(255,255,255,0.08);
+      color: transparent;
+    }
+
+    /* Buttons */
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+      max-width: 320px;
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1.1rem 2rem;
+      border-radius: 16px;
+      border: none;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-decoration: none;
+    }
+
+    .btn-host {
+      background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+      color: var(--text);
+      box-shadow: 0 6px 24px rgba(245, 197, 24, 0.4);
+    }
+
+    .btn-host:hover, .btn-host:active {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(245, 197, 24, 0.5);
+    }
+
+    .btn-join {
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+      border: 2px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn-join:hover, .btn-join:active {
+      background: rgba(255,255,255,0.18);
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.5);
+    }
+
+    .btn-icon {
+      font-size: 1.3rem;
+    }
+
+    /* Features row */
+    .features {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      animation: fadeUp 0.7s 0.6s ease both;
+    }
+
+    .feature {
+      text-align: center;
+      color: #C4B0E8;
+    }
+
+    .feature-icon {
+      font-size: 1.5rem;
+      display: block;
+      margin-bottom: 0.3rem;
+    }
+
+    .feature-text {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Footer */
+    .footer {
+      color: #7B6FA0;
+      font-size: 0.75rem;
+      text-align: center;
+      animation: fadeUp 0.7s 0.8s ease both;
+    }
+
+    /* Animations */
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Confetti burst on load */
+    .confetti-piece {
+      position: fixed;
+      width: 8px;
+      height: 8px;
+      top: -10px;
+      border-radius: 2px;
+      animation: confettiFall linear forwards;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    @keyframes confettiFall {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Floating balls background -->
+  <div class="balls" id="balls"></div>
+
+  <div class="container">
+
+    <!-- Logo -->
+    <div class="logo-section">
+      <span class="logo-emoji">🎱</span>
+      <div class="logo-title">Housie<br>Party</div>
+      <div class="logo-sub">Tambola • Online • Free</div>
+    </div>
+
+    <!-- Ticket preview -->
+    <div class="ticket-preview" id="ticketPreview"></div>
+
+    <!-- Buttons -->
+    <div class="buttons">
+      <a href="host.html" class="btn btn-host">
+        <span class="btn-icon">👑</span>
+        Host a Game
+      </a>
+      <a href="join.html" class="btn btn-join">
+        <span class="btn-icon">🎮</span>
+        Join a Game
+      </a>
+    </div>
+
+    <!-- Features -->
+    <div class="features">
+      <div class="feature">
+        <span class="feature-icon">👥</span>
+        <div class="feature-text">Up to 50<br>Players</div>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">🆓</span>
+        <div class="feature-text">Completely<br>Free</div>
+      </div>
+      <div class="feature">
+        <span class="feature-icon">⚡</span>
+        <div class="feature-text">Real-time<br>Sync</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      Share the link & play together 🎉
+    </div>
+
+  </div>
+
+  <script>
+    // Generate floating balls
+    const ballsContainer = document.getElementById('balls');
+    const nums = Array.from({length: 20}, (_, i) => Math.floor(Math.random() * 90) + 1);
+    const colors = ['#6C2BD9','#9B5EF5','#F5C518','#7C3AED','#4A1A9E'];
+
+    nums.forEach((num, i) => {
+      const ball = document.createElement('div');
+      ball.className = 'ball';
+      const size = 40 + Math.random() * 30;
+      ball.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        background: ${colors[i % colors.length]};
+        left: ${Math.random() * 100}%;
+        animation-duration: ${8 + Math.random() * 12}s;
+        animation-delay: ${Math.random() * 8}s;
+        font-size: ${size * 0.35}px;
+      `;
+      ball.textContent = num;
+      ballsContainer.appendChild(ball);
+    });
+
+    // Generate ticket preview
+    const ticketPreview = document.getElementById('ticketPreview');
+    const allNums = Array.from({length: 90}, (_, i) => i + 1);
+    const shuffled = allNums.sort(() => Math.random() - 0.5);
+    const ticketNums = shuffled.slice(0, 15).sort((a, b) => a - b);
+    const markedIndexes = [1, 4, 7, 10, 13];
+
+    ticketNums.forEach((n, i) => {
+      const cell = document.createElement('div');
+      cell.className = `ticket-num ${markedIndexes.includes(i) ? 'marked' : 'filled'}`;
+      cell.textContent = n;
+      ticketPreview.appendChild(cell);
+    });
+
+    // Confetti on load
+    function launchConfetti() {
+      const colors = ['#F5C518', '#6C2BD9', '#9B5EF5', '#FF6B6B', '#4ECDC4', '#FFE66D'];
+      for (let i = 0; i < 40; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.cssText = `
+          left: ${Math.random() * 100}vw;
+          background: ${colors[Math.floor(Math.random() * colors.length)]};
+          animation-duration: ${1.5 + Math.random() * 2}s;
+          animation-delay: ${Math.random() * 0.5}s;
+          transform: rotate(${Math.random() * 360}deg);
+          border-radius: ${Math.random() > 0.5 ? '50%' : '2px'};
+        `;
+        document.body.appendChild(piece);
+        setTimeout(() => piece.remove(), 4000);
+      }
+    }
+
+    window.addEventListener('load', () => setTimeout(launchConfetti, 300));
+  </script>
+
+</body>
+</html>
